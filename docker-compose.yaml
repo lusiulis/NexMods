@@ -1,0 +1,165 @@
+services:
+  init-perms:
+    image: alpine
+    container_name: init-perms
+    command: >
+      sh -c "
+        chown -R 1000:1000 /controller_data &&
+        chown -R 1000:1000 /broker1_data &&
+        chown -R 1000:1000 /broker2_data &&
+        chown -R 1000:1000 /broker3_data
+      "
+    volumes:
+      - controller_data:/controller_data
+      - broker1_data:/broker1_data
+      - broker2_data:/broker2_data
+      - broker3_data:/broker3_data
+    networks:
+      - kafka-net
+
+  kafka-controller-format:
+    image: apache/kafka:latest
+    container_name: kafka-controller-format
+    hostname: kafka-controller-format
+    user: "1000:1000"
+    depends_on:
+      - init-perms
+    command: >
+      sh -c "/opt/kafka/bin/kafka-storage.sh format --cluster-id kraft-cluster --config /etc/kafka/kraft/server.properties"
+    volumes:
+      - ./config/controller:/etc/kafka/kraft
+      - controller_data:/tmp/kraft-node-logs
+    networks:
+      - kafka-net
+
+  kafka-broker1-format:
+    image: apache/kafka:latest
+    container_name: kafka-broker1-format
+    hostname: kafka-broker1-format
+    user: "1000:1000"
+    depends_on:
+      - init-perms
+    command: >
+      sh -c "/opt/kafka/bin/kafka-storage.sh format --cluster-id kraft-cluster --config /etc/kafka/kraft/server.properties"
+    volumes:
+      - ./config/broker1:/etc/kafka/kraft
+      - broker1_data:/tmp/kraft-node-logs
+    networks:
+      - kafka-net
+
+  kafka-broker2-format:
+    image: apache/kafka:latest
+    container_name: kafka-broker2-format
+    hostname: kafka-broker2-format
+    user: "1000:1000"
+    depends_on:
+      - init-perms
+    command: >
+      sh -c "/opt/kafka/bin/kafka-storage.sh format --cluster-id kraft-cluster --config /etc/kafka/kraft/server.properties"
+    volumes:
+      - ./config/broker2:/etc/kafka/kraft
+      - broker2_data:/tmp/kraft-node-logs
+    networks:
+      - kafka-net
+
+  kafka-broker3-format:
+    image: apache/kafka:latest
+    container_name: kafka-broker3-format
+    hostname: kafka-broker3-format
+    user: "1000:1000"
+    depends_on:
+      - init-perms
+    command: >
+      sh -c "/opt/kafka/bin/kafka-storage.sh format --cluster-id kraft-cluster --config /etc/kafka/kraft/server.properties"
+    volumes:
+      - ./config/broker3:/etc/kafka/kraft
+      - broker3_data:/tmp/kraft-node-logs
+    networks:
+      - kafka-net
+
+  kafka-controller:
+    image: apache/kafka:latest
+    container_name: kafka-controller
+    hostname: kafka-controller
+    entrypoint: /wait-for-meta.sh
+    depends_on:
+      - kafka-controller-format
+      - init-perms
+    volumes:
+      - ./config/controller:/etc/kafka/kraft
+      - controller_data:/tmp/kraft-node-logs
+      - ./wait-for-meta.sh:/wait-for-meta.sh
+    networks:
+      - kafka-net
+
+  broker1:
+    image: apache/kafka:latest
+    container_name: kafka-broker1
+    hostname: kafka-broker1
+    entrypoint: /wait-for-meta.sh
+    environment:
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+    depends_on:
+      - kafka-broker1-format
+      - init-perms
+      - kafka-controller
+    command: /opt/kafka/bin/kafka-server-start.sh /etc/kafka/kraft/server.properties
+    volumes:
+      - ./config/broker1:/etc/kafka/kraft
+      - ./wait-for-meta.sh:/wait-for-meta.sh
+      - broker1_data:/tmp/kraft-node-logs
+    ports:
+      - "9092:9092"
+    networks:
+      - kafka-net
+
+  broker2:
+    image: apache/kafka:latest
+    container_name: kafka-broker2
+    hostname: kafka-broker2
+    entrypoint: /wait-for-meta.sh
+    environment:
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+    depends_on:
+      - kafka-broker2-format
+      - init-perms
+      - kafka-controller
+    command: /opt/kafka/bin/kafka-server-start.sh /etc/kafka/kraft/server.properties
+    volumes:
+      - ./config/broker2:/etc/kafka/kraft
+      - broker2_data:/tmp/kraft-node-logs
+      - ./wait-for-meta.sh:/wait-for-meta.sh
+    ports:
+      - "9094:9094"
+    networks:
+      - kafka-net
+
+  broker3:
+    image: apache/kafka:latest
+    container_name: kafka-broker3
+    hostname: kafka-broker3
+    entrypoint: /wait-for-meta.sh
+    environment:
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+    depends_on:
+      - kafka-broker3-format
+      - init-perms
+      - kafka-controller
+    command: /opt/kafka/bin/kafka-server-start.sh /etc/kafka/kraft/server.properties
+    volumes:
+      - ./config/broker3:/etc/kafka/kraft
+      - broker3_data:/tmp/kraft-node-logs
+      - ./wait-for-meta.sh:/wait-for-meta.sh
+    ports:
+      - "9096:9096"
+    networks:
+      - kafka-net
+
+volumes:
+  controller_data:
+  broker1_data:
+  broker2_data:
+  broker3_data:
+
+networks:
+  kafka-net:
