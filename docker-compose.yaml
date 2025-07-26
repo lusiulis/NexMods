@@ -62,6 +62,7 @@ services:
     networks:
       - kafka-net
 
+
   kafka-broker3-format:
     image: apache/kafka:latest
     container_name: kafka-broker3-format
