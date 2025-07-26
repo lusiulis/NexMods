@@ -5,12 +5,16 @@ services:
     command: >
       sh -c "
         chown -R 1000:1000 /controller_data &&
+        chown -R 1000:1000 /controller2_data &&
+        chown -R 1000:1000 /controller3_data &&
         chown -R 1000:1000 /broker1_data &&
         chown -R 1000:1000 /broker2_data &&
         chown -R 1000:1000 /broker3_data
       "
     volumes:
       - controller_data:/controller_data
+      - controller2_data:/controller2_data
+      - controller3_data:/controller3_data
       - broker1_data:/broker1_data
       - broker2_data:/broker2_data
       - broker3_data:/broker3_data
@@ -28,6 +32,34 @@ services:
     volumes:
       - ./config/controller:/etc/kafka/kraft
       - controller_data:/tmp/kraft-node-logs
+    networks:
+      - kafka-net
+
+  kafka-controller2-format:
+    image: apache/kafka:latest
+    container_name: kafka-controller2-format
+    hostname: kafka-controller2-format
+    depends_on:
+      - init-perms
+    command: >
+      sh -c "/opt/kafka/bin/kafka-storage.sh format --cluster-id kraft-cluster --config /etc/kafka/kraft/server.properties"
+    volumes:
+      - ./config/controller2:/etc/kafka/kraft
+      - controller2_data:/tmp/kraft-node-logs
+    networks:
+      - kafka-net
+
+  kafka-controller3-format:
+    image: apache/kafka:latest
+    container_name: kafka-controller3-format
+    hostname: kafka-controller3-format
+    depends_on:
+      - init-perms
+    command: >
+      sh -c "/opt/kafka/bin/kafka-storage.sh format --cluster-id kraft-cluster --config /etc/kafka/kraft/server.properties"
+    volumes:
+      - ./config/controller3:/etc/kafka/kraft
+      - controller3_data:/tmp/kraft-node-logs
     networks:
       - kafka-net
 
@@ -59,7 +91,6 @@ services:
     networks:
       - kafka-net
 
-
   kafka-broker3-format:
     image: apache/kafka:latest
     container_name: kafka-broker3-format
@@ -85,6 +116,36 @@ services:
     volumes:
       - ./config/controller:/etc/kafka/kraft
       - controller_data:/tmp/kraft-node-logs
+      - ./wait-for-meta.sh:/wait-for-meta.sh
+    networks:
+      - kafka-net
+
+  kafka-controller-2:
+    image: apache/kafka:latest
+    container_name: kafka-controller-2
+    hostname: kafka-controller-2
+    entrypoint: /wait-for-meta.sh
+    depends_on:
+      - kafka-controller-format
+      - init-perms
+    volumes:
+      - ./config/controller2:/etc/kafka/kraft
+      - controller2_data:/tmp/kraft-node-logs
+      - ./wait-for-meta.sh:/wait-for-meta.sh
+    networks:
+      - kafka-net
+
+  kafka-controller-3:
+    image: apache/kafka:latest
+    container_name: kafka-controller-3
+    hostname: kafka-controller-3
+    entrypoint: /wait-for-meta.sh
+    depends_on:
+      - kafka-controller-format
+      - init-perms
+    volumes:
+      - ./config/controller3:/etc/kafka/kraft
+      - controller3_data:/tmp/kraft-node-logs
       - ./wait-for-meta.sh:/wait-for-meta.sh
     networks:
       - kafka-net
@@ -148,6 +209,8 @@ services:
 
 volumes:
   controller_data:
+  controller2_data:
+  controller3_data:
   broker1_data:
   broker2_data:
   broker3_data:
