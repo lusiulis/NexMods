@@ -21,7 +21,6 @@ services:
     image: apache/kafka:latest
     container_name: kafka-controller-format
     hostname: kafka-controller-format
-    user: "1000:1000"
     depends_on:
       - init-perms
     command: >
@@ -36,7 +35,6 @@ services:
     image: apache/kafka:latest
     container_name: kafka-broker1-format
     hostname: kafka-broker1-format
-    user: "1000:1000"
     depends_on:
       - init-perms
     command: >
@@ -51,7 +49,6 @@ services:
     image: apache/kafka:latest
     container_name: kafka-broker2-format
     hostname: kafka-broker2-format
-    user: "1000:1000"
     depends_on:
       - init-perms
     command: >
@@ -67,7 +64,6 @@ services:
     image: apache/kafka:latest
     container_name: kafka-broker3-format
     hostname: kafka-broker3-format
-    user: "1000:1000"
     depends_on:
       - init-perms
     command: >
@@ -98,8 +94,6 @@ services:
     container_name: kafka-broker1
     hostname: kafka-broker1
     entrypoint: /wait-for-meta.sh
-    environment:
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
     depends_on:
       - kafka-broker1-format
       - init-perms
@@ -119,8 +113,6 @@ services:
     container_name: kafka-broker2
     hostname: kafka-broker2
     entrypoint: /wait-for-meta.sh
-    environment:
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
     depends_on:
       - kafka-broker2-format
       - init-perms
@@ -140,8 +132,6 @@ services:
     container_name: kafka-broker3
     hostname: kafka-broker3
     entrypoint: /wait-for-meta.sh
-    environment:
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
     depends_on:
       - kafka-broker3-format
       - init-perms
