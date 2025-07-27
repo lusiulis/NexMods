@@ -69,7 +69,7 @@ This mechanism ensures that partition data remains available even during broker 
 
 ## System Arcitecture
 
-![Arquitectura](docs/arch.png)
+![Arquitectura](./docs/arch.svg)
 
 
 
