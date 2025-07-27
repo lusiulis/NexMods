@@ -69,6 +69,8 @@ This mechanism ensures that partition data remains available even during broker 
 
 ## System Arcitecture
 
+This system uses 3 controller nodes & 3 broker nodes, any controller can be the leader, this decision is made by the Raft consensus. In this example im using 1 topic with 3 partitions (A, B, C) with a replication factor of 2. Any new topic will follow the same patern.
+
 ![Arquitectura](./arch.svg)
 
 
