@@ -17,10 +17,6 @@
 
 ---
 
-## Test
- - Testing element:
-   - test
-
 ## 📚 Aditional Documentation 
 
 - [Kafka Cluster Configuration](docs/kafka-cluster.md)
