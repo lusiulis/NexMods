@@ -19,7 +19,7 @@
 
 ## 📚 Aditional Documentation 
 
-- [Kafka Cluster Configuration](docs/kafka-cluster.md)
+- [Kafka Cluster Functionality](docs/kafka-cluster.md)
 
 ## ✨ Features
 
