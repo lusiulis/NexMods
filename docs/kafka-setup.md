@@ -5,6 +5,7 @@ This document outlines the deployment sequence and configuration of a Kafka clus
 ## Docker-compose Services & Structure
 
 1. Initialization: init-perms
+
 This step ensures proper directory permissions for the Kafka nodes (controllers and brokers) before any metadata is written or processes are started. It typically executes a script to set ownership and access rights for mounted volumes.
 Example:
 
@@ -16,6 +17,7 @@ chown -R appuser:appuser /tmp/kraft-node-logs
 This step is critical to avoid permission errors during snapshot writes or log access.
 
 2. Format Phase
+
 Before a controller or broker can join the cluster, it must initialize its metadata log using the kafka-storage.sh tool. This generates the meta.properties and initial metadata structures using the server.properties file for each respective node (ubicated in config/{node_name}).
 Example:
 
@@ -51,6 +53,7 @@ listener.security.protocol.map=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
 ```
 
 3. Service Startup Sequence
+
 Once the metadata log is setup & ready for each node the respective service is started. To make this services wait for the format to complete we use **wait-for-meta.sh** script, wich checks for **/tmp/kraft-node-logs/meta.properties** to be setup & ready to use. Give permissions to this .sh with **chmod +x wait-for-meta.sh**.
 
  - Controllers: Controllers start up & form a Raft quorum. The consensus will elect the controller leader & followers between the connected controllers & then it will be ready for re-elections in case of failure from any of the nodes. Now the controllers are setup & ready to listen for new brokers registrations & assign role responsibilities.
@@ -59,6 +62,7 @@ Once the metadata log is setup & ready for each node the respective service is s
 Check [Kafka KRaft Cluster Architecture and Roles](docs/kafka-cluster.md) for more information about roles & responsibilities.
 
 4. Verification & Operational Checks
+
 After deployment, check in the container logs for controller quorum's leader election & possible errors. Look for "Completed transition to LeaderState(...)", "Recorded new KRaft controller, from now on will use node" or any other related INFO logs.
 Create topics and then describe topics & partitions from a broker container, Example:
 
@@ -85,6 +89,7 @@ Observe Raft replication:
 Controllers log state transitions, leadership changes, and voter activity.
 
 5. Notes on Recovery & Persistence
+
  - If a controller fails, the remaining controllers elect a new leader and preserve metadata continuity.
  - Nodes re-register automatically on restart.
  - Topics and their partition-leader assignments are preserved across restarts due to the persisted metadata log.
