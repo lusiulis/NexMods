@@ -19,7 +19,8 @@
 
 ## 📚 Aditional Documentation 
 
-- [Kafka Cluster Functionality](docs/kafka-cluster.md)
+- [Kafka KRaft Cluster Architecture and Roles](docs/kafka-cluster.md) for more details on controller quorum, partitioning, and replication.
+- [Kafka Deployment & Setup](docs/kafka-setup.md) deployment guide, docker-compose file & commands.
 
 ## ✨ Features
 

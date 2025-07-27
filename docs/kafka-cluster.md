@@ -1,6 +1,6 @@
-# Kafka KRaft Setup
+# Kafka KRaft Architecture and Roles
 
-In Kafka KRaft mode, metadata management is handled by a quorum of controllers rather than a single leader. Introducing multiple controllers enhances the availability, fault tolerance, and resilience of the cluster’s metadata layer.
+In KRaft mode, metadata management is coordinated by a controller quorum, with a single elected leader managing operations and others replicating the metadata log for high availability.
 
 ## Important Concepts
 
@@ -27,7 +27,7 @@ Each node has a defined role (process.roles) and a unique ID (node.id). Only bro
 **Replication & ISR:** Kafka replicates partitions to ensure data availability. For each partition:
  - One broker is the **Leader**.
  - Others are **Replicas**
-The ISR (In-Sync Replicas) is the set of brokers that are fully synchronized with the leader. Only ISR members can be promoted to leader if a failure occurs. Replication applies only to partition data, not to metadata (which is handled via Raft in controllers) tho it works similarly.
+The ISR (In-Sync Replicas) is the set of brokers that are fully synchronized with the leader. Only ISR members can be promoted to leader if a failure occurs. Partition replication ensures data durability, while Raft consensus ensures metadata consistency. Although both involve replication and failover, they operate over distinct data types and follow different protocols.
 
 **Topics & Partitioning:** Kafka topics are logical streams of messages. Each topic is divided into partitions, which are distributed across broker nodes. Partitioning enables:
  - Parallel consumption.
@@ -55,7 +55,7 @@ This means each of the 3 partitions is hosted by one broker and replicated on an
 On failure:
  - **Broker crash:** Replicas ensure availability, and the controller reassigns leadership.
  - **Controller crash:** Raft quorum elects a new leader, preserving metadata continuity.
-This is why replication is key!
+This mechanism ensures that partition data remains available even during broker outages, maintaining cluster consistency and client availability.
 
 ### Operational Flow Summary
 
@@ -64,8 +64,12 @@ This is why replication is key!
 3. Topics are created via CLI or API.
 4. The controller assigns partitions and replicas.
 5. **Producers** send messages to broker leaders.
-6. Followers replicate messages from leaders.
+6. Broker Followers replicate messages from leaders & the Controller ensures that ISRs are updated to maintain consistency before re-elections.
 7. Consumers read from brokers.
+
+## System Arcitecture
+
+![Arquitectura](docs/arch.svg)
 
 
 
