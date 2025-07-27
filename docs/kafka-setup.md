@@ -59,7 +59,7 @@ Once the metadata log is setup & ready for each node the respective service is s
  - Controllers: Controllers start up & form a Raft quorum. The consensus will elect the controller leader & followers between the connected controllers & then it will be ready for re-elections in case of failure from any of the nodes. Now the controllers are setup & ready to listen for new brokers registrations & assign role responsibilities.
  - Brokers: Once the controller quorum is established, the brokers register with the controller leader & receive their role assignments. Once setup they will listen for any new topics, topics messages, replications & other responsibilities.
 
-Check [Kafka KRaft Cluster Architecture and Roles](docs/kafka-cluster.md) for more information about roles & responsibilities.
+Check [Kafka KRaft Cluster Architecture and Roles](./kafka-cluster.md) for more information about roles & responsibilities.
 
 ### Verification & Operational Checks
 
