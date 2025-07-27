@@ -17,6 +17,10 @@
 
 ---
 
+## 📚 Aditional Documentation 
+
+- [Kafka Cluster Configuration](docs/kafka-cluster.md)
+
 ## ✨ Features
 
 - 🔐 Secure JWT-based Auth with cookies (HttpOnly, SameSite)
@@ -28,8 +32,6 @@
 - 🧪 Ready for testing (Pytest / Jest)
 
 ## ⚙️ Architecture
-
-## 🔒 Key Features
 
 ## 🚀 Getting Started
 
