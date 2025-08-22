@@ -1,0 +1,58 @@
+services:
+  auth:
+    build: ./backend/auth
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./backend/auth:/app
+    env_file:
+      - .env                   
+      - ./backend/auth/.env  
+    depends_on:
+      - db
+      - broker1
+      - broker2
+      - broker3
+
+  products:
+    build: ./backend/products
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./backend/products:/app
+    env_file:
+      - .env                   
+      - ./backend/products/.env  
+    depends_on:
+      - db
+      - broker1
+      - broker2
+      - broker3
+
+  orders:
+    ports:
+      - "8003:8000"
+    build: ./backend/orders
+    volumes:
+      - ./backend/orders:/app
+    env_file:
+      - .env                   
+      - ./backend/orders/.env  
+    depends_on:
+      - db
+      - broker1
+      - broker2
+      - broker3
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: nexmods
+      POSTGRES_PASSWORD: nexmods_password
+      POSTGRES_DB: nexmods
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
