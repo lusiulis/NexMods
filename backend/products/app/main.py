@@ -1,7 +1,15 @@
 from fastapi import FastAPI
 from app.routers import product, category
+from contextlib import asynccontextmanager
+from app.database import Base, engine
 
-app = FastAPI(title="Product Service")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+
+app = FastAPI(title="Product Service", lifespan=lifespan)
 
 @app.get("/")
 async def root():
