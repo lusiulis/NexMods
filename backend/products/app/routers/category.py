@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query, Depends
 from app.schemas import PaginatedCategorySummaryOut, CategoryOut, CategoryCreate, ActionResponse, CategoryUpdate, CategoryProductLinkIn
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.services.category import get_categories, create_category, delete_category, update_category, link_category_product
+from app.services.category import get_categories, create_category, delete_category, update_category, link_category_product, unlink_category_product
 from typing import Optional
 from app.database import get_db
 
@@ -32,5 +32,9 @@ async def update(id: int, data: CategoryUpdate, db: AsyncSession = Depends(get_d
     return await update_category(db, id, data)
 
 @router.post("/link", response_model=ActionResponse)
-async def linkIn(data: CategoryProductLinkIn, db: AsyncSession = Depends(get_db)):
+async def create_category_product_link(data: CategoryProductLinkIn, db: AsyncSession = Depends(get_db)):
     return await link_category_product(db, data)
+
+@router.delete("/link", response_model=ActionResponse)
+async def delete_category_product_link(data: CategoryProductLinkIn, db: AsyncSession = Depends(get_db)):
+    return await unlink_category_product(db, data)
