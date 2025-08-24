@@ -1,4 +1,4 @@
-from .product import Product, ProductVariant, ImageSet
+from .product import Product, ProductVariant, ImageSet, ProductStatus
 from .review import Review
 from .category import Category
 from .associations import categoryxproduct
@@ -13,5 +13,6 @@ __all__ = [
     "categoryxproduct",
     "Review",
     "User",
-    "Cart"
+    "Cart",
+    "ProductStatus"
 ]
