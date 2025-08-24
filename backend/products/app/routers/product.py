@@ -51,10 +51,10 @@ async def update_variant(id: int, data: ProductVariantUpdate, db: AsyncSession =
 
 #----------------------------------------------------------------------------------------
 
-@router.post("/variant/{id}/images", response_model=ImageSetOut)
+@router.post("/variants/{id}/images", response_model=ImageSetOut)
 async def create_image(id: int, data: ImageSetCreate, db: AsyncSession = Depends(get_db)):
     return await add_variant_image(db, id, data)
 
-@router.delete("/variant/images/{id}", response_model=ActionResponse)
+@router.delete("/variants/images/{id}", response_model=ActionResponse)
 async def delete_image(id: int, db: AsyncSession = Depends(get_db)):
     return await delete_variant_image(db, id)
