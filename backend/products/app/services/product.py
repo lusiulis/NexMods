@@ -1,10 +1,24 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, update
+from sqlalchemy import select, func
 from app.models import Product, ProductVariant, ImageSet, Category, ProductStatus
-from app.schemas import ProductCreate, ProductOut, PaginatedProductSummaryOut, ProductSummaryOut, ProductSimpleOut, ProductUpdate, ProductVariantCreate, ProductVariantOut, ProductVariantSimpleOut, ProductVariantUpdate, ImageSetCreate, ImageSetOut, ActionResponse
 from sqlalchemy.orm import selectinload, with_loader_criteria
 from fastapi import HTTPException
 from typing import Optional, List
+from app.schemas import (
+    ProductCreate, 
+    ProductOut, 
+    PaginatedProductSummaryOut, 
+    ProductSummaryOut, 
+    ProductSimpleOut, 
+    ProductUpdate, 
+    ProductVariantCreate, 
+    ProductVariantOut, 
+    ProductVariantSimpleOut, 
+    ProductVariantUpdate, 
+    ImageSetCreate, 
+    ImageSetOut, 
+    ActionResponse
+)
 
 async def create_product(db: AsyncSession, data: ProductCreate) -> ProductOut:
     product = Product(
