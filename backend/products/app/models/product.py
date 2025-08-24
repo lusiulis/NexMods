@@ -1,19 +1,30 @@
-from sqlalchemy import Integer, String, Float, ForeignKey
+from sqlalchemy import Integer, String, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.ext.declarative import declarative_base
+from app.database import Base
+from app.models.associations import categoryxproduct
+from typing import List
+import enum
 
-Base = declarative_base()
+class ProductStatus(enum.Enum):
+    ACTIVE = "active"
+    DELETED = "deleted"
 
 class Product(Base):
     __tablename__ = "products"
     
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    description: Mapped[str] = mapped_column(String(255), nullable=False)
-    sell_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    description: Mapped[str] = mapped_column(String(500), nullable=False)
+    status: Mapped[ProductStatus] = mapped_column(Enum(ProductStatus), nullable=False, default=ProductStatus.ACTIVE)
+    sell_count: Mapped[int] = mapped_column(Integer, nullable=False)
     
-    variants = relationship("ProductVariant", back_populates="product")
-    
+    variants: Mapped[List["ProductVariant"]] = relationship("ProductVariant", back_populates="product")
+    reviews: Mapped[List["Review"]] = relationship("Review", back_populates="product")
+    categories: Mapped[List["Category"]] = relationship(
+        "Category",
+        back_populates="products",
+        secondary=categoryxproduct,
+    )
     
     
 class ProductVariant(Base):
@@ -22,11 +33,13 @@ class ProductVariant(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     product_id: Mapped[int] = mapped_column(Integer, ForeignKey("products.id"), nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    description: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(String(500), nullable=False)
     price: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[ProductStatus] = mapped_column(Enum(ProductStatus), nullable=False, default=ProductStatus.ACTIVE)
     
     product = relationship("Product", back_populates="variants")
-    images = relationship("ImageSet", back_populates="variant")
+    carts: Mapped[List["Cart"]] = relationship("Cart", back_populates="product_variant")
+    images: Mapped[List["ImageSet"]] = relationship("ImageSet", back_populates="variant")
     
 class ImageSet(Base):
     __tablename__ = "image_sets"
