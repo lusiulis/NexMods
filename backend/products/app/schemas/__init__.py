@@ -1,4 +1,5 @@
 from .product import ProductCreate, ProductOut, PaginatedProductSummaryOut, ProductSummaryOut, ProductSimpleOut, ProductUpdate, ProductVariantCreate, ProductVariantOut, ProductVariantSimpleOut, ProductVariantUpdate, ImageSetOut, ImageSetCreate
+from .category import CategoryCreate, CategoryOut, PaginatedCategorySummaryOut, CategoryUpdate, CategorySummaryOut, CategoryProductLinkIn
 from .utils import ActionResponse
 
 __all__ = [
@@ -14,5 +15,11 @@ __all__ = [
     "ProductVariantSimpleOut",
     "ProductVariantUpdate",
     "ImageSetOut",
-    "ImageSetCreate"
+    "ImageSetCreate",
+    "CategoryCreate",
+    "CategoryOut",
+    "PaginatedCategorySummaryOut",
+    "CategoryUpdate",
+    "CategorySummaryOut",
+    "CategoryProductLinkIn"
 ]
