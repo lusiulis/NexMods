@@ -1,7 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from app.schemas import CategoryCreate, CategoryOut, CategoryUpdate, ActionResponse
+from sqlalchemy import select, func
+from app.schemas import CategoryCreate, CategoryOut, CategoryUpdate, ActionResponse, PaginatedCategorySummaryOut, CategorySummaryOut
 from app.models import Category
+from app.models import Product, ProductStatus
+from typing import Optional
 from fastapi import HTTPException
 
 async def create_category(
@@ -69,4 +71,54 @@ async def delete_category(
     return ActionResponse(
         message = "Category deleted successfully",
         status = "successful"
+    )
+    
+async def get_categories(
+    db: AsyncSession,
+    page: int = 1,
+    limit: int = 10,
+    name: Optional[str] = None
+) -> PaginatedCategorySummaryOut:
+    offset = (page - 1) * limit 
+    query = select(Category)
+    if name:
+        query = query.where(Category.name.ilike(f"%{name}%"))
+        
+    total_result = await db.execute(
+        select(func.count()).select_from(query.subquery())
+    )
+    total = total_result.scalar() or 0
+    pages = (total + limit - 1) // limit
+    
+    count_expr = func.count(Product.id).filter(Product.status == ProductStatus.ACTIVE)
+    stmt = (
+        select(
+            Category.id,
+            Category.name,
+            Category.description,
+            count_expr.label("product_count")
+        )
+        .outerjoin(Category.products)
+        .group_by(Category.id)
+        .order_by(Category.name)
+        .offset(offset)
+        .limit(limit)
+    )
+    
+    rows = (await db.execute(stmt)).all()
+    
+    items = [
+        CategorySummaryOut(
+            id = row[0],
+            description = row[1],
+            name = row[2],
+            product_count= row[3] or 0
+        )
+        for row in rows
+    ]
+
+    return PaginatedCategorySummaryOut(
+        total=total,
+        pages=pages,
+        items=items
     )

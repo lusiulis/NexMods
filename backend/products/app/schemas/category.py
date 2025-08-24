@@ -14,12 +14,21 @@ class CategoryOut(BaseModel):
     id: int
     name: str
     description: str
-    products_count: int
+    
+    model_config = {
+        "from_attributes": True
+    }
+    
+class CategorySummaryOut(BaseModel):
+    id: int
+    name: str
+    description: str
+    product_count: int
     
     model_config = {
         "from_attributes": True
     }
     
 class PaginatedCategorySummaryOut(PaginatedModel):
-    items: List[CategoryOut] = []
+    items: List[CategorySummaryOut] = []
     
