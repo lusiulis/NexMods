@@ -37,24 +37,24 @@ async def update(id: int, data: ProductUpdate, db: AsyncSession = Depends(get_db
 
 #----------------------------------------------------------------------------------------
 
-@router.post("/{id}/variant", response_model=ProductVariantOut)
+@router.post("/{id}/variants", response_model=ProductVariantOut)
 async def create_variant(id: int, data: ProductVariantCreate, db: AsyncSession = Depends(get_db)):
     return await add_product_variant(db, id, data)
 
-@router.delete("/variant/{id}", response_model=ProductVariantSimpleOut)
+@router.delete("/variants/{id}", response_model=ProductVariantSimpleOut)
 async def delete_variant(id: int, db: AsyncSession = Depends(get_db)):
     return await delete_product_variant(db, id)
 
-@router.patch("/variant/{id}", response_model=ProductVariantSimpleOut)
+@router.patch("/variants/{id}", response_model=ProductVariantSimpleOut)
 async def update_variant(id: int, data: ProductVariantUpdate, db: AsyncSession = Depends(get_db)):
     return await update_product_variant(db, id, data)
 
 #----------------------------------------------------------------------------------------
 
-@router.post("/variant/{id}/image", response_model=ImageSetOut)
+@router.post("/variant/{id}/images", response_model=ImageSetOut)
 async def create_image(id: int, data: ImageSetCreate, db: AsyncSession = Depends(get_db)):
     return await add_variant_image(db, id, data)
 
-@router.delete("/variant/image/{id}", response_model=ActionResponse)
+@router.delete("/variant/images/{id}", response_model=ActionResponse)
 async def delete_image(id: int, db: AsyncSession = Depends(get_db)):
     return await delete_variant_image(db, id)
