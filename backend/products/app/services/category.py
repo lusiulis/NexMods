@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, insert
+from sqlalchemy import select, func, insert, delete
 from app.schemas import CategoryCreate, CategoryOut, CategoryUpdate, ActionResponse, PaginatedCategorySummaryOut, CategorySummaryOut, CategoryProductLinkIn
 from app.models import Category
 from app.models import Product, ProductStatus, categoryxproduct
@@ -156,3 +156,24 @@ async def link_category_product(
         message = "Category linked to product successfully",
         status = "successful"
     )
+    
+async def unlink_category_product(
+    db: AsyncSession,
+    data: CategoryProductLinkIn
+) -> ActionResponse:
+    result = await db.execute(
+        delete(categoryxproduct).where(
+            categoryxproduct.c.category_id == data.category_id,
+            categoryxproduct.c.product_id == data.product_id
+        )
+    )
+
+    if result.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Relation not found")
+
+    await db.commit()
+    
+    return ActionResponse(
+        message = "Category unlinked to product successfully",
+        status = "successful"
+    ) 
