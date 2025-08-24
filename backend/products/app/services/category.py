@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from app.schemas import CategoryCreate, CategoryOut, CategoryUpdate, ActionResponse, PaginatedCategorySummaryOut, CategorySummaryOut
+from sqlalchemy import select, func, insert
+from app.schemas import CategoryCreate, CategoryOut, CategoryUpdate, ActionResponse, PaginatedCategorySummaryOut, CategorySummaryOut, CategoryProductLinkIn
 from app.models import Category
-from app.models import Product, ProductStatus
+from app.models import Product, ProductStatus, categoryxproduct
 from typing import Optional
 from fastapi import HTTPException
 
@@ -110,8 +110,8 @@ async def get_categories(
     items = [
         CategorySummaryOut(
             id = row[0],
-            description = row[1],
-            name = row[2],
+            description = row[2],
+            name = row[1],
             product_count= row[3] or 0
         )
         for row in rows
@@ -121,4 +121,38 @@ async def get_categories(
         total=total,
         pages=pages,
         items=items
+    )
+    
+async def link_category_product(
+    db: AsyncSession,
+    data: CategoryProductLinkIn
+) -> ActionResponse:
+    cat = await db.get(Category, data.category_id)
+    if not cat:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    prod = await db.get(Product, data.product_id)
+    if not prod:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    result = await db.execute(
+        select(categoryxproduct).where(
+            categoryxproduct.c.category_id == data.category_id,
+            categoryxproduct.c.product_id == data.product_id
+        )
+    )
+    if result.first():
+        raise HTTPException(status_code=400, detail="Relation already exists")
+
+    await db.execute(
+        insert(categoryxproduct).values(
+            category_id=data.category_id,
+            product_id=data.product_id
+        )
+    )
+    await db.commit()
+
+    return ActionResponse(
+        message = "Category linked to product successfully",
+        status = "successful"
     )

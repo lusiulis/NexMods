@@ -32,3 +32,6 @@ class CategorySummaryOut(BaseModel):
 class PaginatedCategorySummaryOut(PaginatedModel):
     items: List[CategorySummaryOut] = []
     
+class CategoryProductLinkIn(BaseModel):
+    category_id: int
+    product_id: int
